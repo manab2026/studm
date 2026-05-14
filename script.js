@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzAfcLxCocpZOYqXT9g8KIUhZ2s9eMyeMqyY02LZu5l0z8pJtms9hOxz1kB03cVwnGq3Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxirUqf7XQC--0Oihu-ioYiRzykIBPJGnzomChVj_3xKjvwBYB2R_UUj1hLw-Ms-Z-1Jw/exec";
 
 let students = [];
 
@@ -39,8 +39,8 @@ async function saveStudent() {
     try {
 const res = await fetch(API_URL, {
     method: "POST",
-    mode: "no-cors",   // MUST
-    body: JSON.stringify(studentData) // OK
+    mode: "no-cors",
+    body: JSON.stringify(studentData)
 });
 
 const text = await res.text();
