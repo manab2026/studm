@@ -50,7 +50,7 @@ async function saveStudent() {
 
         students.push(newStudent);
 
-        renderTable();
+        loadStudents();
 
         clearForm();
 
@@ -67,26 +67,26 @@ async function saveStudent() {
 
 /* RENDER TABLE */
 
-function renderTable(data = students) {
+async function loadStudents() {
+    try {
 
-    const table = document.getElementById("studentTable");
+        const res = await fetch(API_URL);
+        const data = await res.json();
 
-    table.innerHTML = "";
+        students = data.map(item => ({
+            studentName: item["Student Name"],
+            mobileNo: item["Mobile No"],
+            asnNo: item["ASN No"],
+            enrollmentDate: item["Enrollment Date"],
+            courseName: item["Course Name"],
+            batch: item["Batch"]
+        }));
 
-    data.forEach((student, index) => {
+        renderTable();
 
-        table.innerHTML += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${student.studentName}</td>
-                <td>${student.mobileNo}</td>
-                <td>${student.courseName}</td>
-                <td>${student.asnNo}</td>
-                <td>${student.batch}</td>
-                <td>${student.enrollmentDate}</td>
-            </tr>
-        `;
-    });
+    } catch (error) {
+        console.error("Load error:", error);
+    }
 }
 
 /* SEARCH */
@@ -135,3 +135,5 @@ function clearForm() {
     document.getElementById("courseName").value = "";
     document.getElementById("batch").value = "";
 }
+
+window.onload = loadStudents;

@@ -8,99 +8,93 @@
 
     <title>Student Management System</title>
 
-    <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- SheetJS Excel Library -->
+    <!-- Excel Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 </head>
 
-<body>
+<body class="bg-gray-100">
 
-<div class="container">
+<div class="max-w-6xl mx-auto p-6">
 
-    <h1>Student Management System</h1>
+    <!-- TITLE -->
+    <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">
+        Student Management System
+    </h1>
 
     <!-- FORM -->
-    <div class="form-box">
+    <div class="bg-white p-6 rounded-xl shadow grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <input type="text"
-               id="studentName"
-               placeholder="Student Name *"
-               required>
+        <input type="text" id="studentName"
+            placeholder="Student Name *"
+            class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <input type="text"
-               id="mobileNo"
-               placeholder="Mobile Number">
+        <input type="text" id="mobileNo"
+            placeholder="Mobile Number"
+            class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <input type="number"
-               id="asnNo"
-               placeholder="ASN Number *"
-               required>
+        <input type="number" id="asnNo"
+            placeholder="ASN Number *"
+            class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <input type="date"
-               id="enrollmentDate"
-               required>
+        <input type="date" id="enrollmentDate"
+            class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <select id="courseName" required>
+        <select id="courseName"
+            class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-            <option value="">
-                Select Course *
-            </option>
-
-            <option value="Executive Certification in Corporate Social Responsibility">
-                CSR
-            </option>
-
-            <option value="Advance Certification in Investment Law and Institutional Finance">
-                CIIF
-            </option>
+            <option value="">Select Course *</option>
+            <option value="CSR">CSR</option>
+            <option value="CIIF">CIIF</option>
 
         </select>
 
-        <input type="month"
-               id="batch">
+        <input type="month" id="batch"
+            class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <button onclick="saveStudent()">
+        <button onclick="saveStudent()"
+            class="md:col-span-3 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">
             Save Student
         </button>
 
     </div>
 
     <!-- SEARCH + EXPORT -->
-    <div class="top-bar">
+    <div class="mt-6 flex flex-col md:flex-row gap-4">
 
-        <input type="text"
-               id="search"
-               placeholder="Search Student..."
-               onkeyup="searchStudent()">
+        <input type="text" id="search"
+            placeholder="Search Student..."
+            onkeyup="searchStudent()"
+            class="flex-1 border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <button onclick="exportExcel()">
+        <button onclick="exportExcel()"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             Export Excel
         </button>
 
     </div>
 
     <!-- TABLE -->
-    <div class="table-container">
+    <div class="mt-6 bg-white rounded-xl shadow overflow-x-auto">
 
-        <table id="studentTableExcel">
+        <table id="studentTableExcel" class="w-full text-sm text-left">
 
-            <thead>
-
+            <thead class="bg-blue-600 text-white">
                 <tr>
-                    <th>SL No</th>
-                    <th>Student Name</th>
-                    <th>Mobile No</th>
-                    <th>Course Name</th>
-                    <th>ASN No</th>
-                    <th>Batch</th>
-                    <th>Enrollment Date</th>
+                    <th class="p-3">#</th>
+                    <th class="p-3">Student Name</th>
+                    <th class="p-3">Mobile No</th>
+                    <th class="p-3">Course Name</th>
+                    <th class="p-3">ASN No</th>
+                    <th class="p-3">Batch</th>
+                    <th class="p-3">Enrollment Date</th>
                 </tr>
-
             </thead>
 
-            <tbody id="studentTable"></tbody>
+            <tbody id="studentTable" class="text-gray-700"></tbody>
 
         </table>
 
