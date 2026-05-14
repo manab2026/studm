@@ -21,7 +21,7 @@ async function saveStudent() {
 
     try {
 
-        // ✅ Use FormData (IMPORTANT)
+        // ✅ FormData for Apps Script
         const formData = new FormData();
 
         formData.append("studentName", studentName);
@@ -31,25 +31,33 @@ async function saveStudent() {
         formData.append("courseName", courseName);
         formData.append("batch", batch);
 
-        // ✅ Send to Google Apps Script
+        // ✅ Send data
         await fetch(API_URL, {
             method: "POST",
             mode: "no-cors",
             body: formData
         });
 
-        // ✅ UI update (since we can't read response)
-        setTimeout(() => {
-            alert("Saved! Check Google Sheet ✅");
-        }, 1000);
+        // ✅ Add to local array (for table UI)
+        const newStudent = {
+            studentName,
+            mobileNo,
+            asnNo,
+            enrollmentDate,
+            courseName,
+            batch
+        };
 
-        // OPTIONAL: clear form
-        document.getElementById("studentName").value = "";
-        document.getElementById("mobileNo").value = "";
-        document.getElementById("asnNo").value = "";
-        document.getElementById("enrollmentDate").value = "";
-        document.getElementById("courseName").value = "";
-        document.getElementById("batch").value = "";
+        students.push(newStudent);
+
+        renderTable();
+
+        clearForm();
+
+        // ✅ Success message
+        setTimeout(() => {
+            alert("Saved successfully ✅");
+        }, 800);
 
     } catch (error) {
         console.error(error);
@@ -68,23 +76,14 @@ function renderTable(data = students) {
     data.forEach((student, index) => {
 
         table.innerHTML += `
-
             <tr>
-
                 <td>${index + 1}</td>
-
                 <td>${student.studentName}</td>
-
                 <td>${student.mobileNo}</td>
-
                 <td>${student.courseName}</td>
-
                 <td>${student.asnNo}</td>
-
                 <td>${student.batch}</td>
-
                 <td>${student.enrollmentDate}</td>
-
             </tr>
         `;
     });
@@ -102,13 +101,9 @@ function searchStudent() {
     const filtered = students.filter(student => {
 
         return (
-
             (student.studentName || "").toLowerCase().includes(search) ||
-
             (student.mobileNo || "").toLowerCase().includes(search) ||
-
             (student.courseName || "").toLowerCase().includes(search) ||
-
             (student.asnNo || "").toString().includes(search)
         );
     });
@@ -123,7 +118,6 @@ function exportExcel() {
     const table = document.getElementById("studentTableExcel");
 
     const workbook = XLSX.utils.table_to_book(table, {
-
         sheet: "Students"
     });
 
@@ -135,14 +129,9 @@ function exportExcel() {
 function clearForm() {
 
     document.getElementById("studentName").value = "";
-
     document.getElementById("mobileNo").value = "";
-
     document.getElementById("asnNo").value = "";
-
     document.getElementById("enrollmentDate").value = "";
-
     document.getElementById("courseName").value = "";
-
     document.getElementById("batch").value = "";
 }
