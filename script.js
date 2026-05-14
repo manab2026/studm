@@ -7,55 +7,53 @@ let students = [];
 async function saveStudent() {
 
     const studentName = document.getElementById("studentName").value.trim();
-
     const mobileNo = document.getElementById("mobileNo").value.trim();
-
     const asnNo = document.getElementById("asnNo").value.trim();
-
     const enrollmentDate = document.getElementById("enrollmentDate").value;
-
     const courseName = document.getElementById("courseName").value;
-
     const batch = document.getElementById("batch").value;
 
-    /* VALIDATION */
-
+    // VALIDATION
     if (!studentName || !asnNo || !enrollmentDate || !courseName) {
-
         alert("Please fill all required fields");
-
         return;
     }
 
-    const studentData = {
-        studentName,
-        mobileNo,
-        asnNo,
-        enrollmentDate,
-        courseName,
-        batch
-    };
-
     try {
-const res = await fetch(API_URL, {
-    method: "POST",
-    mode: "no-cors",
-    body: JSON.stringify(studentData)
-});
 
-const text = await res.text();
+        // ✅ Use FormData (IMPORTANT)
+        const formData = new FormData();
 
-if (text.includes("SUCCESS")) {
-    alert("Saved in Google Sheet ✅");
-} else {
-    alert("Error: " + text);
-}
+        formData.append("studentName", studentName);
+        formData.append("mobileNo", mobileNo);
+        formData.append("asnNo", asnNo);
+        formData.append("enrollmentDate", enrollmentDate);
+        formData.append("courseName", courseName);
+        formData.append("batch", batch);
+
+        // ✅ Send to Google Apps Script
+        await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: formData
+        });
+
+        // ✅ UI update (since we can't read response)
+        setTimeout(() => {
+            alert("Saved! Check Google Sheet ✅");
+        }, 1000);
+
+        // OPTIONAL: clear form
+        document.getElementById("studentName").value = "";
+        document.getElementById("mobileNo").value = "";
+        document.getElementById("asnNo").value = "";
+        document.getElementById("enrollmentDate").value = "";
+        document.getElementById("courseName").value = "";
+        document.getElementById("batch").value = "";
 
     } catch (error) {
-
         console.error(error);
-
-        alert("Error Saving Student");
+        alert("Error Sending Data ❌");
     }
 }
 
