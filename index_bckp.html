@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- SheetJS Excel Library -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Student Management System</h1>
+
+    <!-- FORM SECTION -->
+    <div class="form-box">
+
+        <input type="hidden" id="studentId">
+
+        <!-- Name -->
+        <input type="text"
+               id="studentName"
+               placeholder="Student Name *"
+               required>
+
+        <!-- Mobile Number -->
+        <input type="text"
+               id="mobileNo"
+               placeholder="Mobile Number">
+
+        <!-- ASN -->
+        <input type="number"
+               id="asnNo"
+               placeholder="ASN Number *"
+               step="1"
+               required>
+
+        <!-- Enrollment Date -->
+        <input type="date"
+               id="enrollmentDate"
+               required>
+
+        <!-- Course Name -->
+        <select id="courseName" required>
+            <option value="">Select Course *</option>
+            <option value="Executive Certification in Corporate Social Responsiblity">
+                CSR
+            </option>
+            <option value="Advance Certification in Investment Law and Institutional Finance">
+                CIIF
+            </option>
+        </select>
+
+        <!-- Batch -->
+        <input type="month"
+               id="batch">
+
+        <!-- SAVE BUTTON -->
+        <button onclick="saveStudent()">
+            Save Student
+        </button>
+
+    </div>
+
+    <!-- SEARCH + EXPORT -->
+    <div class="top-bar">
+
+        <input type="text"
+               id="search"
+               placeholder="Search Student..."
+               onkeyup="searchStudent()">
+
+        <button onclick="exportExcel()">
+            Export Excel
+        </button>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>SL No</th>
+                    <th>Student Name</th>
+                    <th>Mobile No</th>
+                    <th>Course Name</th>
+                    <th>ASN No</th>
+                    <th>Batch</th>
+                    <th>Enrollment Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
