@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxirUqf7XQC--0Oihu-ioYiRzykIBPJGnzomChVj_3xKjvwBYB2R_UUj1hLw-Ms-Z-1Jw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzbV__RllG9fcqRdYMS_dRh7YtwH4xf1HpQ-AlNlXK2Rsq0uNM7H5n6AkDd5uHxQw1i7w/exec";
 
 let students = [];
 
