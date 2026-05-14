@@ -39,10 +39,8 @@ async function saveStudent() {
     try {
 const res = await fetch(API_URL, {
     method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(studentData)
+    mode: "no-cors",   // MUST
+    body: JSON.stringify(studentData) // OK
 });
 
 const text = await res.text();
