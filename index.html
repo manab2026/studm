@@ -1,15 +1,51 @@
 <!DOCTYPE html>
+</div>
 
+<div>
+<label class="text-sm font-medium block mb-2">Batch Month</label>
+<select id="batchMonth"
+class="w-full border rounded-lg p-3">
+<option value="">Month</option>
+<option>Jan</option>
+<option>Feb</option>
+<option>Mar</option>
+<option>Apr</option>
+<option>May</option>
+<option>Jun</option>
+<option>Jul</option>
+<option>Aug</option>
+<option>Sep</option>
+<option>Oct</option>
+<option>Nov</option>
+<option>Dec</option>
+</select>
+</div>
+
+<div>
+<label class="text-sm font-medium block mb-2">Batch Year</label>
+<input id="batchYear" type="number"
+class="w-full border rounded-lg p-3">
 </div>
 
 </div>
 
+<div class="flex gap-4 mt-8">
 
+<button onclick="saveStudent()"
+id="saveBtn"
+class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl">
+Save Student
+</button>
+
+<button onclick="clearForm()"
+class="bg-gray-200 hover:bg-gray-300 px-8 py-3 rounded-xl">
+Clear
+</button>
+
+</div>
+
+</div>
 <!-- FILTERS -->
-
-<div class="bg-white rounded-2xl shadow p-6 mb-6">
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
 <input type="text"
 id="search"
@@ -83,6 +119,8 @@ Next
 </div>
 
 </div>
+
+
 <!-- TOAST -->
 
 <div id="toast"
