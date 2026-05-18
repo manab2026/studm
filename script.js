@@ -95,27 +95,40 @@ function renderTable(data = students) {
 
     table.innerHTML = "";
 
-    data.forEach(student => {
+    data.forEach((student, index) => {
 
         table.innerHTML += `
 
             <tr class="border-b hover:bg-gray-50">
 
-                <td class="p-3">${student["SL No"] || ""}</td>
-
-                <td class="p-3">${student["Student Name"] || ""}</td>
-
-                <td class="p-3">${student["Mobile No"] || ""}</td>
-
-                <td class="p-3">${student["Enrollment No"] || ""}</td>
-
-                <td class="p-3">${student["Course Name"] || ""}</td>
-
                 <td class="p-3">
-                    ${student["Batch Month"] || ""} ${student["Batch Year"] || ""}
+                    ${student["SL No"] || index + 1}
                 </td>
 
-                <td class="p-3">${student["Enrollment Date"] || ""}</td>
+                <td class="p-3">
+                    ${student["Student Name"] || ""}
+                </td>
+
+                <td class="p-3">
+                    ${student["Mobile No"] || ""}
+                </td>
+
+                <td class="p-3">
+                    ${student["Enrollment No"] || ""}
+                </td>
+
+                <td class="p-3">
+                    ${student["Course Name"] || ""}
+                </td>
+
+                <td class="p-3">
+                    ${student["Batch Month"] || ""} 
+                    ${student["Batch Year"] || ""}
+                </td>
+
+                <td class="p-3">
+                    ${formatDate(student["Enrollment Date"])}
+                </td>
 
             </tr>
 
@@ -123,6 +136,14 @@ function renderTable(data = students) {
     });
 }
 
+function formatDate(dateString) {
+
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleDateString("en-GB");
+}
 
 /* DASHBOARD */
 
