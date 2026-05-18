@@ -130,6 +130,18 @@ function renderTable(data = students) {
                     ${formatDate(student["Enrollment Date"])}
                 </td>
 
+                <td class="p-3">
+
+                    <button
+                        onclick="editStudent(${index})"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+
+                        Edit
+
+                    </button>
+
+                </td>
+
             </tr>
 
         `;
@@ -143,6 +155,15 @@ function formatDate(dateString) {
     const date = new Date(dateString);
 
     return date.toLocaleDateString("en-GB");
+}
+
+function formatInputDate(dateString) {
+
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    return date.toISOString().split('T')[0];
 }
 
 /* DASHBOARD */
@@ -222,6 +243,7 @@ function exportExcel() {
 
 function clearForm() {
 
+    // ONLY CLEAR THESE
     document.getElementById("studentName").value = "";
 
     document.getElementById("mobileNo").value = "";
@@ -230,13 +252,38 @@ function clearForm() {
 
     document.getElementById("enrollmentDate").value = "";
 
-    document.getElementById("courseName").value = "";
-
-    document.getElementById("batchMonth").value = "";
-
-    document.getElementById("batchYear").value = "";
 }
 
+function editStudent(index) {
+
+    const student = students[index];
+
+    document.getElementById("studentName").value =
+        student["Student Name"] || "";
+
+    document.getElementById("mobileNo").value =
+        student["Mobile No"] || "";
+
+    document.getElementById("enrollmentNo").value =
+        student["Enrollment No"] || "";
+
+    document.getElementById("enrollmentDate").value =
+        formatInputDate(student["Enrollment Date"]);
+
+    document.getElementById("courseName").value =
+        student["Course Name"] || "";
+
+    document.getElementById("batchMonth").value =
+        student["Batch Month"] || "";
+
+    document.getElementById("batchYear").value =
+        student["Batch Year"] || "";
+
+    // REMOVE OLD RECORD FROM UI
+    students.splice(index, 1);
+
+    renderTable();
+}
 
 /* DARK MODE */
 
