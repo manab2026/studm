@@ -570,6 +570,38 @@ function toggleDarkMode() {
     document.body.classList.toggle("text-white");
 }
 
+function toggleFieldSettings() {
+
+    document
+        .getElementById("fieldSettings")
+        .classList
+        .toggle("hidden");
+}
+
+
+function toggleField(fieldId, enabled) {
+
+    document
+        .getElementById(fieldId)
+        .disabled = !enabled;
+
+
+    if (!enabled) {
+
+        document
+            .getElementById(fieldId)
+            .classList
+            .add("bg-gray-100", "cursor-not-allowed");
+    }
+
+    else {
+
+        document
+            .getElementById(fieldId)
+            .classList
+            .remove("bg-gray-100", "cursor-not-allowed");
+    }
+}
 
 /* ON LOAD */
 

@@ -1,282 +1,576 @@
-let students = JSON.parse(localStorage.getItem("students")) || [];
+const API_URL = "https://script.google.com/macros/s/AKfycby4faax5wrl4ScBqO6I9q8guYBdTUKFN2o-mq8Pt_yngg_97eA6qvyU5fYY_mb9jF28og/exec";
+
+let students = [];
+let filteredStudents = [];
+
+let currentPage = 1;
+const rowsPerPage = 10;
+
+let editMode = false;
 
 
-// KEEP COURSE SELECTED
-const savedCourse = localStorage.getItem("selectedCourse");
+/* LOAD STUDENTS */
 
-if (savedCourse) {
-    document.getElementById("courseName").value = savedCourse;
+async function loadStudents() {
+
+    try {
+
+        const res = await fetch(API_URL);
+
+        const data = await res.json();
+
+        students = data;
+
+        filteredStudents = [...students];
+
+        updateDashboard();
+
+        populateCourseFilter();
+
+        renderTable();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showToast("Error loading data", true);
+    }
 }
 
 
-// KEEP BATCH SELECTED
-const savedBatch = localStorage.getItem("selectedBatch");
+/* SAVE OR UPDATE */
 
-if (savedBatch) {
-    document.getElementById("batch").value = savedBatch;
-}
+async function saveStudent() {
 
+    showLoader(true);
 
-// LOAD STUDENTS
-loadStudents();
+    const rowId =
+        document.getElementById("rowId").value;
 
+    const studentName =
+        document.getElementById("studentName").value.trim();
 
+    const mobileNo =
+        document.getElementById("mobileNo").value.trim();
 
-// SAVE STUDENT
-function saveStudent() {
+    const enrollmentDate =
+        document.getElementById("enrollmentDate").value;
 
-    const studentId = document.getElementById("studentId").value;
+    const courseName =
+        document.getElementById("courseName").value;
 
-    const student = {
+    const batchMonth =
+        document.getElementById("batchMonth").value;
 
-        id: studentId ? Number(studentId) : Date.now(),
+    const batchYear =
+        document.getElementById("batchYear").value;
 
-        studentName: document.getElementById("studentName").value.trim(),
-
-        mobileNo: document.getElementById("mobileNo").value.trim(),
-
-        courseName: document.getElementById("courseName").value,
-
-        asnNo: parseInt(document.getElementById("asnNo").value),
-
-        batch: formatMonth(document.getElementById("batch").value),
-
-        enrollmentDate: formatDate(document.getElementById("enrollmentDate").value)
-    };
+    const enrollmentNo =
+        document.getElementById("enrollmentNo").value.trim();
 
 
-    // REQUIRED VALIDATION
-    if (
-        !student.studentName ||
-        !student.courseName ||
-        !student.asnNo ||
-        !student.enrollmentDate
-    ) {
+    if (!studentName || !enrollmentDate || !courseName) {
+
+        showLoader(false);
+
+        showToast("Please fill required fields", true);
+
         return;
     }
 
 
-    // DUPLICATE ASN CHECK
-    const duplicateASN = students.find(s =>
-        s.asnNo == student.asnNo &&
-        s.id != student.id
-    );
+    try {
 
-    if (duplicateASN) {
-        return;
-    }
+        const formData = new FormData();
 
-
-    // DUPLICATE NAME CHECK
-    const duplicateName = students.find(s =>
-        s.studentName.toLowerCase() ==
-        student.studentName.toLowerCase() &&
-        s.id != student.id
-    );
-
-    if (duplicateName) {
-        return;
-    }
-
-
-    // SAVE COURSE
-    localStorage.setItem("selectedCourse", student.courseName);
-
-
-    // SAVE BATCH
-    localStorage.setItem(
-        "selectedBatch",
-        document.getElementById("batch").value
-    );
-
-
-    // UPDATE STUDENT
-    if (studentId) {
-
-        students = students.map(s =>
-            s.id === Number(studentId) ? student : s
+        formData.append(
+            "action",
+            editMode ? "update" : "add"
         );
 
-    } else {
+        formData.append("rowId", rowId);
 
-        // ADD STUDENT
-        students.push(student);
+        formData.append("studentName", studentName);
+
+        formData.append("mobileNo", mobileNo);
+
+        formData.append("enrollmentNo", enrollmentNo);
+
+        formData.append("enrollmentDate", enrollmentDate);
+
+        formData.append("courseName", courseName);
+
+        formData.append("batchMonth", batchMonth);
+
+        formData.append("batchYear", batchYear);
+
+
+        await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: formData
+        });
+
+
+        clearForm();
+
+        setTimeout(() => {
+
+            loadStudents();
+
+            showLoader(false);
+
+            showToast(
+                editMode
+                    ? "Student Updated Successfully"
+                    : "Student Added Successfully"
+            );
+
+            editMode = false;
+
+            document.getElementById("saveBtn").innerText =
+                "Save Student";
+
+            document.getElementById("formMode").innerText =
+                "Add Student";
+
+            // AUTO FOCUS
+            document.getElementById("studentName").focus();
+
+        }, 1000);
+
     }
 
+    catch (error) {
 
-    // SAVE STORAGE
-    localStorage.setItem("students", JSON.stringify(students));
+        console.error(error);
 
+        showLoader(false);
 
-    clearForm();
-    loadStudents();
-
-    // ✅ NEW: focus back to name field
-    document.getElementById("studentName").focus();
+        showToast("Error Saving Student", true);
+    }
 }
 
 
+/* EDIT */
 
-// LOAD STUDENTS
-function loadStudents(filteredStudents = students) {
+function editStudent(index) {
 
-    const table = document.getElementById("studentTable");
+    const student = filteredStudents[index];
+
+    editMode = true;
+
+    document.getElementById("formMode").innerText =
+        "Edit Student";
+
+    document.getElementById("saveBtn").innerText =
+        "Update Student";
+
+
+    document.getElementById("rowId").value =
+        student["Row ID"] || "";
+
+    document.getElementById("studentName").value =
+        student["Student Name"] || "";
+
+    document.getElementById("mobileNo").value =
+        student["Mobile No"] || "";
+
+    document.getElementById("enrollmentNo").value =
+        student["Enrollment No"] || "";
+
+    document.getElementById("enrollmentDate").value =
+        formatInputDate(student["Enrollment Date"]);
+
+    document.getElementById("courseName").value =
+        student["Course Name"] || "";
+
+    document.getElementById("batchMonth").value =
+        student["Batch Month"] || "";
+
+    document.getElementById("batchYear").value =
+        student["Batch Year"] || "";
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* DELETE */
+
+async function deleteStudent(rowId) {
+
+    console.log("DELETE ROW ID:", rowId);
+
+    if (!confirm("Delete this student?")) {
+        return;
+    }
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("action", "delete");
+
+        formData.append("rowId", rowId);
+
+        await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: formData
+        });
+
+        showToast("Student Deleted");
+
+        setTimeout(() => {
+
+            loadStudents();
+
+        }, 1000);
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showToast("Delete Failed", true);
+    }
+}
+
+
+/* RENDER TABLE */
+
+function renderTable(data = filteredStudents) {
+
+    const table =
+        document.getElementById("studentTable");
 
     table.innerHTML = "";
 
-    filteredStudents.forEach((student, index) => {
+
+    const start =
+        (currentPage - 1) * rowsPerPage;
+
+    const end =
+        start + rowsPerPage;
+
+    const paginatedData =
+        data.slice(start, end);
+
+
+    paginatedData.forEach((student, index) => {
 
         table.innerHTML += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${student.studentName}</td>
-                <td>${student.mobileNo || ""}</td>
-                <td>${student.courseName}</td>
-                <td>${student.asnNo}</td>
-                <td>${student.batch || ""}</td>
-                <td>${student.enrollmentDate}</td>
-                <td>
-                    <button class="edit-btn"
-                        onclick="editStudent(${student.id})">
-                        Edit
-                    </button>
 
-                    <button class="delete-btn"
-                        onclick="deleteStudent(${student.id})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
+        <tr class="border-b hover:bg-gray-50 transition">
+
+            <td class="p-3">
+                ${student["SL No"] || ""}
+            </td>
+
+            <td class="p-3 font-medium">
+                ${student["Student Name"] || ""}
+            </td>
+
+            <td class="p-3">
+                ${student["Mobile No"] || ""}
+            </td>
+
+            <td class="p-3">
+                ${student["Enrollment No"] || ""}
+            </td>
+
+            <td class="p-3">
+                ${student["Course Name"] || ""}
+            </td>
+
+            <td class="p-3">
+                ${student["Batch Month"] || ""}
+                ${student["Batch Year"] || ""}
+            </td>
+
+            <td class="p-3">
+                ${formatDate(student["Enrollment Date"])}
+            </td>
+
+            <td class="p-3 flex gap-2">
+
+                <button
+                    onclick="editStudent(${start + index})"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+
+                    Edit
+
+                </button>
+
+                <button
+                    onclick="deleteStudent('${student["Row ID"] || ""}')"
+                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
+
+                    Delete
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+    });
+
+
+    document.getElementById("pageNumber").innerText =
+        currentPage;
+}
+
+
+/* SEARCH */
+
+function searchStudent() {
+
+    const search =
+        document.getElementById("search")
+        .value
+        .toLowerCase();
+
+    filteredStudents = students.filter(student => {
+
+        return (
+
+            (student["Student Name"] || "")
+            .toLowerCase()
+            .includes(search)
+
+            ||
+
+            (student["Mobile No"] || "")
+            .toLowerCase()
+            .includes(search)
+
+            ||
+
+            (student["Enrollment No"] || "")
+            .toLowerCase()
+            .includes(search)
+
+            ||
+
+            (student["Course Name"] || "")
+            .toLowerCase()
+            .includes(search)
+        );
+    });
+
+    currentPage = 1;
+
+    renderTable();
+}
+
+
+/* COURSE FILTER */
+
+function filterByCourse() {
+
+    const course =
+        document.getElementById("courseFilter").value;
+
+    if (!course) {
+
+        filteredStudents = [...students];
+    }
+
+    else {
+
+        filteredStudents = students.filter(student =>
+
+            student["Course Name"] === course
+        );
+    }
+
+    currentPage = 1;
+
+    renderTable();
+}
+
+
+/* POPULATE FILTER */
+
+function populateCourseFilter() {
+
+    const filter =
+        document.getElementById("courseFilter");
+
+    const uniqueCourses = [
+
+        ...new Set(
+
+            students.map(
+                s => s["Course Name"]
+            )
+        )
+    ];
+
+
+    filter.innerHTML =
+        `<option value="">All Courses</option>`;
+
+
+    uniqueCourses.forEach(course => {
+
+        filter.innerHTML += `
+
+            <option value="${course}">
+                ${course}
+            </option>
+
         `;
     });
 }
 
 
+/* PAGINATION */
 
-// EDIT STUDENT
-function editStudent(id) {
+function nextPage() {
 
-    const student = students.find(s => s.id === id);
+    const totalPages =
+        Math.ceil(filteredStudents.length / rowsPerPage);
 
-    document.getElementById("studentId").value = student.id;
-    document.getElementById("studentName").value = student.studentName;
-    document.getElementById("mobileNo").value = student.mobileNo;
-    document.getElementById("courseName").value = student.courseName;
-    document.getElementById("asnNo").value = student.asnNo;
-    document.getElementById("batch").value = reverseMonth(student.batch);
-    document.getElementById("enrollmentDate").value = reverseDate(student.enrollmentDate);
+    if (currentPage < totalPages) {
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+        currentPage++;
+
+        renderTable();
+    }
 }
 
+function prevPage() {
 
+    if (currentPage > 1) {
 
-// DELETE STUDENT
-function deleteStudent(id) {
+        currentPage--;
 
-    if (confirm("Delete this student?")) {
-
-        students = students.filter(s => s.id !== id);
-
-        localStorage.setItem("students", JSON.stringify(students));
-
-        loadStudents();
+        renderTable();
     }
 }
 
 
+/* DASHBOARD */
 
-// SEARCH STUDENT
-function searchStudent() {
+function updateDashboard() {
 
-    const value = document.getElementById("search").value.toLowerCase();
+    document.getElementById("studentCount").innerText =
+        students.length;
 
-    const filtered = students.filter(student =>
-        student.studentName.toLowerCase().includes(value) ||
-        student.courseName.toLowerCase().includes(value) ||
-        student.asnNo.toString().includes(value)
-    );
+    const courses = [
 
-    loadStudents(filtered);
+        ...new Set(
+
+            students.map(
+                s => s["Course Name"]
+            )
+        )
+    ];
+
+    document.getElementById("courseCount").innerText =
+        courses.length;
 }
 
 
+/* EXPORT EXCEL */
 
-// CLEAR FORM
-function clearForm() {
-
-    document.getElementById("studentId").value = "";
-    document.getElementById("studentName").value = "";
-    document.getElementById("mobileNo").value = "";
-
-    // KEEP COURSE & BATCH
-    document.getElementById("asnNo").value = "";
-    document.getElementById("enrollmentDate").value = "";
-}
-
-
-
-// EXPORT EXCEL
 function exportExcel() {
 
-    const exportData = students.map((student, index) => ({
-        "SL No": index + 1,
-        "Student Name": student.studentName,
-        "Mobile No": student.mobileNo,
-        "Course Name": student.courseName,
-        "ASN No": student.asnNo,
-        "Batch": student.batch,
-        "Enrollment Date": student.enrollmentDate
-    }));
+    const table =
+        document.getElementById("studentTableExcel");
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
+    const workbook =
+        XLSX.utils.table_to_book(table, {
+            sheet: "Students"
+        });
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
-
-    XLSX.writeFile(workbook, "students.xlsx");
+    XLSX.writeFile(
+        workbook,
+        "Student_Data.xlsx"
+    );
 }
 
 
+/* CLEAR FORM */
 
-// FORMAT YYYY-MM TO MM/YYYY
-function formatMonth(monthValue) {
+function clearForm() {
 
-    if (!monthValue) return "";
+    document.getElementById("rowId").value = "";
 
-    const parts = monthValue.split("-");
-    return `${parts[1]}/${parts[0]}`;
+    document.getElementById("studentName").value = "";
+
+    document.getElementById("mobileNo").value = "";
+
+    document.getElementById("enrollmentNo").value = "";
+
+    document.getElementById("enrollmentDate").value = "";
+
+
+    editMode = false;
 }
 
 
+/* TOAST */
 
-// REVERSE MM/YYYY TO YYYY-MM
-function reverseMonth(monthValue) {
+function showLoader(show) {
 
-    if (!monthValue) return "";
+    const loader =
+        document.getElementById("formLoader");
 
-    const parts = monthValue.split("/");
-    return `${parts[1]}-${parts[0]}`;
+    if (show) {
+
+        loader.classList.remove("hidden");
+    }
+
+    else {
+
+        loader.classList.add("hidden");
+    }
 }
 
 
+/* FORMAT DATE */
 
-// FORMAT YYYY-MM-DD TO DD/MM/YYYY
-function formatDate(dateValue) {
+function formatDate(dateString) {
 
-    if (!dateValue) return "";
+    if (!dateString) return "";
 
-    const parts = dateValue.split("-");
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    const date = new Date(dateString);
+
+    return date.toLocaleDateString("en-GB");
 }
 
 
+function formatInputDate(dateString) {
 
-// REVERSE DD/MM/YYYY TO YYYY-MM-DD
-function reverseDate(dateValue) {
+    if (!dateString) return "";
 
-    if (!dateValue) return "";
+    const date = new Date(dateString);
 
-    const parts = dateValue.split("/");
-    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    return date.toISOString().split('T')[0];
 }
+
+
+/* DARK MODE */
+
+function toggleDarkMode() {
+
+    document.body.classList.toggle("bg-gray-900");
+
+    document.body.classList.toggle("text-white");
+}
+
+
+/* ON LOAD */
+
+window.onload = loadStudents;
