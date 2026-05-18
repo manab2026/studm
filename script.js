@@ -1,67 +1,12 @@
 const API_URL = "https://script.google.com/macros/s/AKfycby4faax5wrl4ScBqO6I9q8guYBdTUKFN2o-mq8Pt_yngg_97eA6qvyU5fYY_mb9jF28og/exec";
 
 let students = [];
+let filteredStudents = [];
 
-/* SAVE STUDENT */
+let currentPage = 1;
+const rowsPerPage = 10;
 
-async function saveStudent() {
-
-    const studentName = document.getElementById("studentName").value.trim();
-
-    const mobileNo = document.getElementById("mobileNo").value.trim();
-
-    const enrollmentNo = document.getElementById("enrollmentNo").value.trim();
-
-    const enrollmentDate = document.getElementById("enrollmentDate").value;
-
-    const courseName = document.getElementById("courseName").value;
-
-    const batchMonth = document.getElementById("batchMonth").value;
-
-    const batchYear = document.getElementById("batchYear").value;
-
-    if (!studentName || !enrollmentDate || !courseName) {
-
-        alert("Please fill all required fields");
-
-        return;
-    }
-
-    try {
-
-        const formData = new FormData();
-
-        formData.append("studentName", studentName);
-        formData.append("mobileNo", mobileNo);
-        formData.append("enrollmentNo", enrollmentNo);
-        formData.append("enrollmentDate", enrollmentDate);
-        formData.append("courseName", courseName);
-        formData.append("batchMonth", batchMonth);
-        formData.append("batchYear", batchYear);
-
-        await fetch(API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: formData
-        });
-
-        clearForm();
-
-        setTimeout(() => {
-
-            loadStudents();
-
-            alert("Saved Successfully ✅");
-
-        }, 1000);
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("Error Saving Data ❌");
-    }
-}
+let editMode = false;
 
 
 /* LOAD STUDENTS */
@@ -76,109 +21,302 @@ async function loadStudents() {
 
         students = data;
 
-        renderTable();
+        filteredStudents = [...students];
 
         updateDashboard();
 
-    } catch (error) {
+        populateCourseFilter();
+
+        renderTable();
+
+    }
+
+    catch (error) {
 
         console.error(error);
+
+        showToast("Error loading data", true);
+    }
+}
+
+
+/* SAVE OR UPDATE */
+
+async function saveStudent() {
+
+    const rowId =
+        document.getElementById("rowId").value;
+
+    const studentName =
+        document.getElementById("studentName").value.trim();
+
+    const mobileNo =
+        document.getElementById("mobileNo").value.trim();
+
+    const enrollmentNo =
+        document.getElementById("enrollmentNo").value.trim();
+
+    const enrollmentDate =
+        document.getElementById("enrollmentDate").value;
+
+    const courseName =
+        document.getElementById("courseName").value;
+
+    const batchMonth =
+        document.getElementById("batchMonth").value;
+
+    const batchYear =
+        document.getElementById("batchYear").value;
+
+
+    if (!studentName || !enrollmentDate || !courseName) {
+
+        showToast("Please fill required fields", true);
+
+        return;
+    }
+
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append(
+            "action",
+            editMode ? "update" : "add"
+        );
+
+        formData.append("rowId", rowId);
+
+        formData.append("studentName", studentName);
+
+        formData.append("mobileNo", mobileNo);
+
+        formData.append("enrollmentNo", enrollmentNo);
+
+        formData.append("enrollmentDate", enrollmentDate);
+
+        formData.append("courseName", courseName);
+
+        formData.append("batchMonth", batchMonth);
+
+        formData.append("batchYear", batchYear);
+
+
+        await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: formData
+        });
+
+
+        clearForm();
+
+        setTimeout(() => {
+
+            loadStudents();
+
+            showToast(
+                editMode
+                    ? "Student Updated Successfully"
+                    : "Student Added Successfully"
+            );
+
+            editMode = false;
+
+            document.getElementById("saveBtn").innerText =
+                "Save Student";
+
+            document.getElementById("formMode").innerText =
+                "Add Student";
+
+        }, 1000);
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showToast("Error Saving Student", true);
+    }
+}
+
+
+/* EDIT */
+
+function editStudent(index) {
+
+    const student = filteredStudents[index];
+
+    editMode = true;
+
+    document.getElementById("formMode").innerText =
+        "Edit Student";
+
+    document.getElementById("saveBtn").innerText =
+        "Update Student";
+
+
+    document.getElementById("rowId").value =
+        student["Row ID"] || "";
+
+    document.getElementById("studentName").value =
+        student["Student Name"] || "";
+
+    document.getElementById("mobileNo").value =
+        student["Mobile No"] || "";
+
+    document.getElementById("enrollmentNo").value =
+        student["Enrollment No"] || "";
+
+    document.getElementById("enrollmentDate").value =
+        formatInputDate(student["Enrollment Date"]);
+
+    document.getElementById("courseName").value =
+        student["Course Name"] || "";
+
+    document.getElementById("batchMonth").value =
+        student["Batch Month"] || "";
+
+    document.getElementById("batchYear").value =
+        student["Batch Year"] || "";
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* DELETE */
+
+async function deleteStudent(rowId) {
+
+    const confirmDelete =
+        confirm("Delete this student?");
+
+    if (!confirmDelete) return;
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("action", "delete");
+
+        formData.append("rowId", rowId);
+
+
+        await fetch(API_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: formData
+        });
+
+
+        setTimeout(() => {
+
+            loadStudents();
+
+            showToast("Student Deleted");
+
+        }, 1000);
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showToast("Delete Failed", true);
     }
 }
 
 
 /* RENDER TABLE */
 
-function renderTable(data = students) {
+function renderTable(data = filteredStudents) {
 
-    const table = document.getElementById("studentTable");
+    const table =
+        document.getElementById("studentTable");
 
     table.innerHTML = "";
 
-    data.forEach((student, index) => {
+
+    const start =
+        (currentPage - 1) * rowsPerPage;
+
+    const end =
+        start + rowsPerPage;
+
+    const paginatedData =
+        data.slice(start, end);
+
+
+    paginatedData.forEach((student, index) => {
 
         table.innerHTML += `
 
-            <tr class="border-b hover:bg-gray-50">
+        <tr class="border-b hover:bg-gray-50 transition">
 
-                <td class="p-3">
-                    ${student["SL No"] || index + 1}
-                </td>
+            <td class="p-3">
+                ${student["SL No"] || ""}
+            </td>
 
-                <td class="p-3">
-                    ${student["Student Name"] || ""}
-                </td>
+            <td class="p-3 font-medium">
+                ${student["Student Name"] || ""}
+            </td>
 
-                <td class="p-3">
-                    ${student["Mobile No"] || ""}
-                </td>
+            <td class="p-3">
+                ${student["Mobile No"] || ""}
+            </td>
 
-                <td class="p-3">
-                    ${student["Enrollment No"] || ""}
-                </td>
+            <td class="p-3">
+                ${student["Enrollment No"] || ""}
+            </td>
 
-                <td class="p-3">
-                    ${student["Course Name"] || ""}
-                </td>
+            <td class="p-3">
+                ${student["Course Name"] || ""}
+            </td>
 
-                <td class="p-3">
-                    ${student["Batch Month"] || ""} 
-                    ${student["Batch Year"] || ""}
-                </td>
+            <td class="p-3">
+                ${student["Batch Month"] || ""}
+                ${student["Batch Year"] || ""}
+            </td>
 
-                <td class="p-3">
-                    ${formatDate(student["Enrollment Date"])}
-                </td>
+            <td class="p-3">
+                ${formatDate(student["Enrollment Date"])}
+            </td>
 
-                <td class="p-3">
+            <td class="p-3 flex gap-2">
 
-                    <button
-                        onclick="editStudent(${index})"
-                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                <button
+                    onclick="editStudent(${start + index})"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
 
-                        Edit
+                    Edit
 
-                    </button>
+                </button>
 
-                </td>
+                <button
+                    onclick="deleteStudent('${student["Row ID"]}')"
+                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
 
-            </tr>
+                    Delete
+
+                </button>
+
+            </td>
+
+        </tr>
 
         `;
     });
-}
 
-function formatDate(dateString) {
 
-    if (!dateString) return "";
-
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-GB");
-}
-
-function formatInputDate(dateString) {
-
-    if (!dateString) return "";
-
-    const date = new Date(dateString);
-
-    return date.toISOString().split('T')[0];
-}
-
-/* DASHBOARD */
-
-function updateDashboard() {
-
-    document.getElementById("studentCount").innerText = students.length;
-
-    const courses = [...new Set(
-
-        students.map(s => s["Course Name"])
-
-    )];
-
-    document.getElementById("courseCount").innerText = courses.length;
+    document.getElementById("pageNumber").innerText =
+        currentPage;
 }
 
 
@@ -186,12 +324,12 @@ function updateDashboard() {
 
 function searchStudent() {
 
-    const search = document
-        .getElementById("search")
+    const search =
+        document.getElementById("search")
         .value
         .toLowerCase();
 
-    const filtered = students.filter(student => {
+    filteredStudents = students.filter(student => {
 
         return (
 
@@ -219,7 +357,118 @@ function searchStudent() {
         );
     });
 
-    renderTable(filtered);
+    currentPage = 1;
+
+    renderTable();
+}
+
+
+/* COURSE FILTER */
+
+function filterByCourse() {
+
+    const course =
+        document.getElementById("courseFilter").value;
+
+    if (!course) {
+
+        filteredStudents = [...students];
+    }
+
+    else {
+
+        filteredStudents = students.filter(student =>
+
+            student["Course Name"] === course
+        );
+    }
+
+    currentPage = 1;
+
+    renderTable();
+}
+
+
+/* POPULATE FILTER */
+
+function populateCourseFilter() {
+
+    const filter =
+        document.getElementById("courseFilter");
+
+    const uniqueCourses = [
+
+        ...new Set(
+
+            students.map(
+                s => s["Course Name"]
+            )
+        )
+    ];
+
+
+    filter.innerHTML =
+        `<option value="">All Courses</option>`;
+
+
+    uniqueCourses.forEach(course => {
+
+        filter.innerHTML += `
+
+            <option value="${course}">
+                ${course}
+            </option>
+
+        `;
+    });
+}
+
+
+/* PAGINATION */
+
+function nextPage() {
+
+    const totalPages =
+        Math.ceil(filteredStudents.length / rowsPerPage);
+
+    if (currentPage < totalPages) {
+
+        currentPage++;
+
+        renderTable();
+    }
+}
+
+function prevPage() {
+
+    if (currentPage > 1) {
+
+        currentPage--;
+
+        renderTable();
+    }
+}
+
+
+/* DASHBOARD */
+
+function updateDashboard() {
+
+    document.getElementById("studentCount").innerText =
+        students.length;
+
+    const courses = [
+
+        ...new Set(
+
+            students.map(
+                s => s["Course Name"]
+            )
+        )
+    ];
+
+    document.getElementById("courseCount").innerText =
+        courses.length;
 }
 
 
@@ -227,15 +476,18 @@ function searchStudent() {
 
 function exportExcel() {
 
-    const table = document.getElementById("studentTableExcel");
+    const table =
+        document.getElementById("studentTableExcel");
 
-    const workbook = XLSX.utils.table_to_book(table, {
+    const workbook =
+        XLSX.utils.table_to_book(table, {
+            sheet: "Students"
+        });
 
-        sheet: "Students"
-
-    });
-
-    XLSX.writeFile(workbook, "Student_Data.xlsx");
+    XLSX.writeFile(
+        workbook,
+        "Student_Data.xlsx"
+    );
 }
 
 
@@ -243,7 +495,8 @@ function exportExcel() {
 
 function clearForm() {
 
-    // ONLY CLEAR THESE
+    document.getElementById("rowId").value = "";
+
     document.getElementById("studentName").value = "";
 
     document.getElementById("mobileNo").value = "";
@@ -252,38 +505,55 @@ function clearForm() {
 
     document.getElementById("enrollmentDate").value = "";
 
+
+    editMode = false;
 }
 
-function editStudent(index) {
 
-    const student = students[index];
+/* TOAST */
 
-    document.getElementById("studentName").value =
-        student["Student Name"] || "";
+function showToast(message, error = false) {
 
-    document.getElementById("mobileNo").value =
-        student["Mobile No"] || "";
+    const toast =
+        document.getElementById("toast");
 
-    document.getElementById("enrollmentNo").value =
-        student["Enrollment No"] || "";
+    toast.innerText = message;
 
-    document.getElementById("enrollmentDate").value =
-        formatInputDate(student["Enrollment Date"]);
+    toast.className = error
+        ? "fixed top-5 right-5 bg-red-500 text-white px-5 py-3 rounded shadow-lg z-50"
+        : "fixed top-5 right-5 bg-green-500 text-white px-5 py-3 rounded shadow-lg z-50";
 
-    document.getElementById("courseName").value =
-        student["Course Name"] || "";
+    toast.classList.remove("hidden");
 
-    document.getElementById("batchMonth").value =
-        student["Batch Month"] || "";
+    setTimeout(() => {
 
-    document.getElementById("batchYear").value =
-        student["Batch Year"] || "";
+        toast.classList.add("hidden");
 
-    // REMOVE OLD RECORD FROM UI
-    students.splice(index, 1);
-
-    renderTable();
+    }, 3000);
 }
+
+
+/* FORMAT DATE */
+
+function formatDate(dateString) {
+
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleDateString("en-GB");
+}
+
+
+function formatInputDate(dateString) {
+
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    return date.toISOString().split('T')[0];
+}
+
 
 /* DARK MODE */
 
