@@ -194,10 +194,11 @@ function editStudent(index) {
 
 async function deleteStudent(rowId) {
 
-    const confirmDelete =
-        confirm("Delete this student?");
+    console.log("DELETE ROW ID:", rowId);
 
-    if (!confirmDelete) return;
+    if (!confirm("Delete this student?")) {
+        return;
+    }
 
     try {
 
@@ -207,19 +208,17 @@ async function deleteStudent(rowId) {
 
         formData.append("rowId", rowId);
 
-
         await fetch(API_URL, {
             method: "POST",
             mode: "no-cors",
             body: formData
         });
 
+        showToast("Student Deleted");
 
         setTimeout(() => {
 
             loadStudents();
-
-            showToast("Student Deleted");
 
         }, 1000);
 
@@ -300,7 +299,7 @@ function renderTable(data = filteredStudents) {
                 </button>
 
                 <button
-                    onclick="deleteStudent('${student["Row ID"]}')"
+                    onclick="deleteStudent('${student["Row ID"] || ""}')"
                     class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
 
                     Delete
