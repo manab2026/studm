@@ -375,89 +375,56 @@
                         tabindex="6"
                         placeholder="YYYY"
                         class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-
                 </div>
-
-
                 <!-- ENROLLMENT NUMBER -->
-
                 <div class="md:col-span-3">
-
                     <label class="text-sm font-semibold block mb-2 text-gray-700">
                         Enrollment Number
                     </label>
-
                     <input id="enrollmentNo"
                         type="text"
                         tabindex="7"
                         placeholder="Enter Enrollment Number"
                         class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-
                 </div>
-
             </div>
-
-
             <!-- BUTTONS -->
-
             <div class="flex justify-between items-center mt-8">
-
                 <!-- CLEAR -->
-
                 <button onclick="clearForm()"
                     tabindex="8"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-xl font-medium transition">
-
                     Clear
-
                 </button>
-
-
                 <!-- SAVE -->
-
                 <button onclick="saveStudent()"
                     id="saveBtn"
                     tabindex="9"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-medium transition shadow-lg">
-
                     Save Student
-
                 </button>
-
             </div>
-
         </div>
 
 
         <!-- FILTERS -->
-
         <div class="bg-white rounded-2xl shadow p-6 mb-6">
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
                 <input type="text"
                     id="search"
                     placeholder="Search student..."
                     onkeyup="searchStudent()"
                     class="border rounded-lg p-3">
-
                 <select id="courseFilter"
                     onchange="filterByCourse()"
                     class="border rounded-lg p-3">
-
                     <option value="">All Courses</option>
-
                 </select>
-
                 <button onclick="exportExcel()"
                     class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-3">
-
                     Export Excel
-
                 </button>
-
             </div>
-
         </div>
 
 

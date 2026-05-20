@@ -511,10 +511,17 @@ function clearForm() {
 
     document.getElementById("mobileNo").value = "";
 
-    document.getElementById("enrollmentNo").value = "";
-
     document.getElementById("enrollmentDate").value = "";
 
+    document.getElementById("enrollmentNo").value = "";
+
+    // KEEP THESE
+    // courseName
+    // batchMonth
+    // batchYear
+
+    // AUTO FOCUS
+    document.getElementById("studentName").focus();
 
     editMode = false;
 }
@@ -570,7 +577,67 @@ function toggleDarkMode() {
     document.body.classList.toggle("text-white");
 }
 
+function toggleFieldSettings() {
 
+    document
+        .getElementById("fieldSettings")
+        .classList
+        .toggle("hidden");
+}
+
+
+function toggleField(fieldId, enabled) {
+
+    document
+        .getElementById(fieldId)
+        .disabled = !enabled;
+
+
+    if (!enabled) {
+
+        document
+            .getElementById(fieldId)
+            .classList
+            .add("bg-gray-100", "cursor-not-allowed");
+    }
+
+    else {
+
+        document
+            .getElementById(fieldId)
+            .classList
+            .remove("bg-gray-100", "cursor-not-allowed");
+    }
+}
+
+/* TOAST */
+
+function showToast(message, error = false) {
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.innerText = message;
+
+    toast.className = error
+        ? "fixed top-5 right-5 bg-red-500 text-white px-6 py-4 rounded-xl shadow-lg z-50"
+        : "fixed top-5 right-5 bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg z-50";
+
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+
+        toast.classList.add("hidden");
+
+    }, 3000);
+}
 /* ON LOAD */
 
-window.onload = loadStudents;
+window.onload = () => {
+
+    loadStudents();
+
+    // AUTO CURSOR ON PAGE LOAD
+    document.getElementById("studentName").focus();
+
+};
