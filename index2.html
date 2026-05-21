@@ -23,7 +23,7 @@
 
 <body class="bg-gray-100 text-gray-800 transition duration-300">
 
-    <div class="max-w-7xl mx-auto p-6">
+    <div class="w-full px-6 py-6">
 
         <!-- TOP BAR -->
 
@@ -44,46 +44,52 @@
         </div>
 
 
-        <!-- DASHBOARD -->
+        <!-- MAIN LAYOUT -->
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-10 gap-6 mb-8">
 
-            <div class="bg-white p-6 rounded-2xl shadow">
+            <!-- LEFT SIDE -->
 
-                <h2 class="text-sm text-gray-500 uppercase">
-                    Total Students
-                </h2>
+            <div class="lg:col-span-3 space-y-5">
 
-                <div id="studentCount"
-                    class="text-4xl font-bold mt-2">
+                <div class="bg-white p-6 rounded-2xl shadow">
 
-                    0
+                    <h2 class="text-sm text-gray-500 uppercase">
+                        Total Students
+                    </h2>
+
+                    <div id="studentCount"
+                        class="text-4xl font-bold mt-2">
+
+                        0
+
+                    </div>
+
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow">
+
+                    <h2 class="text-sm text-gray-500 uppercase">
+                        Courses
+                    </h2>
+
+                    <div id="courseCount"
+                        class="text-4xl font-bold mt-2">
+
+                        0
+
+                    </div>
 
                 </div>
 
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow">
 
-                <h2 class="text-sm text-gray-500 uppercase">
-                    Courses
-                </h2>
+            <!-- MIDDLE SIDE -->
 
-                <div id="courseCount"
-                    class="text-4xl font-bold mt-2">
+            <div class="lg:col-span-6">
 
-                    0
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- FORM -->
-
-        <div class="relative bg-white rounded-2xl shadow p-8 mb-8">
+                <div class="relative bg-white rounded-2xl shadow p-8">
 
             <!-- LOADER -->
 
@@ -240,7 +246,7 @@
 
             <!-- FORM GRID -->
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
 
                 <!-- STUDENT NAME -->
@@ -377,7 +383,7 @@
                         class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                 </div>
                 <!-- ENROLLMENT NUMBER -->
-                <div class="md:col-span-3">
+                <div class="md:col-span-2">
                     <label class="text-sm font-semibold block mb-2 text-gray-700">
                         Enrollment Number
                     </label>
@@ -404,6 +410,16 @@
                     Save Student
                 </button>
             </div>
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT SIDE -->
+
+            <div class="lg:col-span-1">
+            </div>
+
         </div>
 
 
